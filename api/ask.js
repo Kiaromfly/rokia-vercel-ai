@@ -1,22 +1,26 @@
 export default async function handler(req, res) {
   // ✅ CORS headers
-  res.setHeader("Access-Control-Allow-Origin", "https://rokialtd.com"); // o "*" per test
+  res.setHeader("Access-Control-Allow-Origin", "https://rokialtd.com"); // o "*" solo per test
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
+  // ✅ Gestione preflight (CORS)
   if (req.method === "OPTIONS") {
-    res.status(200).end(); // Preflight request
-    return;
+    return res.status(200).end();
   }
 
-  // ✅ Logica base dell'API
+  // ✅ Assicurati che il corpo sia JSON
+  if (!req.body || typeof req.body !== 'object') {
+    return res.status(400).json({ error: "Corpo richiesta non valido o mancante." });
+  }
+
   const { prompt } = req.body;
   if (!prompt) {
     return res.status(400).json({ error: "Prompt mancante." });
   }
 
-  // Qui andrebbe la tua logica AI (es. chiamata al backend con Ollama)
+  // 🧠 Qui andrebbe la logica AI (chiamata al backend o Ollama)
   const risposta = `Hai scritto: "${prompt}". Risposta generica di test.`;
 
-  res.status(200).json({ response: risposta });
+  return res.status(200).json({ response: risposta });
 }
