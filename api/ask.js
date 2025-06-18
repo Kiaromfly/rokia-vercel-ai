@@ -1,23 +1,34 @@
+// File: /api/ask.js
+
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Only POST allowed' });
+  // CORS Headers
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Gestione preflight
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
   }
 
-  const { prompt } = req.body;
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Only POST allowed" });
+  }
 
   try {
-    const response = await fetch("https://ai.rokialtd.com/ask", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer RokiaLab-2025-ACCESS"
-      },
-      body: JSON.stringify({ prompt })
-    });
+    const { prompt } = req.body;
 
-    const result = await response.json();
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({ error: "Errore interno", detail: error.message });
+    if (!prompt || typeof prompt !== "string") {
+      return res.status(400).json({ error: "Prompt mancante o non valido" });
+    }
+
+    // Qui puoi integrare Mistral, Ollama o API di tua scelta
+    // Simulazione risposta
+    const risposta = `Risposta simulata a: "${prompt}"`;
+
+    return res.status(200).json({ response: risposta });
+  } catch (err) {
+    console.error("Errore interno:", err);
+    return res.status(500).json({ error: "Errore interno del server" });
   }
 }
